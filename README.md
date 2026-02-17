@@ -1,5 +1,7 @@
 # Detection Viewer
 
+[![Demo](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue)](https://huggingface.co/spaces/hysts-gradio-custom-html/detection-viewer-demo)
+
 A Gradio custom HTML component for visualizing object detection results — bounding boxes, segmentation masks, human pose keypoints, skeleton connections, and confidence scores.
 
 Built on top of `gr.HTML` using HTML/CSS/JavaScript for rendering, with no frontend build step required.
