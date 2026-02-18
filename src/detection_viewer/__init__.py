@@ -122,3 +122,19 @@ class DetectionViewer(gr.HTML):
             result["scoreThresholdMax"] = config["score_threshold"][1]
 
         return json.dumps(result)
+
+    def api_info(self) -> dict[str, Any]:
+        return {
+            "type": "string",
+            "description": (
+                "JSON string containing detection visualization data. "
+                "Structure: {image: string (URL), annotations: ["
+                "{color: string, label: string, "
+                "bbox?: {x: float, y: float, width: float, height: float}, "
+                "score?: float, "
+                "mask?: {counts: [int], size: [int, int]}, "
+                "keypoints?: [{x: float, y: float, name: string, confidence?: float}], "
+                "connections?: [[int, int]]}], "
+                "scoreThresholdMin?: float, scoreThresholdMax?: float}"
+            ),
+        }
