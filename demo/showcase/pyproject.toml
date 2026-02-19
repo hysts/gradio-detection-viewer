@@ -1,14 +1,11 @@
 [project]
-name = "mask2former"
+name = "showcase"
 version = "0.1.0"
-description = "Add your description here"
+description = "Preset examples demo for detection-viewer"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "detection-viewer",
-    "scipy>=1.17.0",
-    "torch==2.9.1",
-    "transformers>=5.1.0",
 ]
 
 [tool.uv.sources]

@@ -1,8 +1,9 @@
+from collections.abc import Callable
+
 import gradio as gr
 import numpy as np
-from PIL import Image, ImageDraw
-
 from detection_viewer import DetectionViewer
+from PIL import Image, ImageDraw
 
 COCO_SKELETON = [
     [0, 1],
@@ -215,7 +216,7 @@ def _make_segmentation() -> list[dict]:
     ]
 
 
-_EXAMPLE_BUILDERS: dict[str, callable] = {
+_EXAMPLE_BUILDERS: dict[str, Callable[[], list[dict]]] = {
     "Two people": _make_two_people,
     "Single person": _make_single_person,
     "Object detection": _make_object_detection,
