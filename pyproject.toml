@@ -58,9 +58,13 @@ convention = "google"
 [tool.ruff.format]
 docstring-code-format = true
 
+[tool.pytest.ini_options]
+addopts = "-n auto"
+
 [dependency-groups]
 dev = [
     "playwright>=1.58.0",
     "pytest>=9.0.2",
+    "pytest-xdist>=3.8.0",
     "ruff>=0.15.1",
 ]
