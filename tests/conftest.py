@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import numpy as np
 import gradio as gr
+import numpy as np
 import pytest
 from PIL import Image, ImageDraw
 from playwright.sync_api import Browser, Page, sync_playwright
@@ -11,16 +11,42 @@ from playwright.sync_api import Browser, Page, sync_playwright
 from detection_viewer import DetectionViewer
 
 COCO_SKELETON = [
-    [0, 1], [0, 2], [1, 3], [2, 4], [5, 6], [5, 7], [7, 9],
-    [6, 8], [8, 10], [5, 11], [6, 12], [11, 12], [11, 13],
-    [13, 15], [12, 14], [14, 16],
+    [0, 1],
+    [0, 2],
+    [1, 3],
+    [2, 4],
+    [5, 6],
+    [5, 7],
+    [7, 9],
+    [6, 8],
+    [8, 10],
+    [5, 11],
+    [6, 12],
+    [11, 12],
+    [11, 13],
+    [13, 15],
+    [12, 14],
+    [14, 16],
 ]
 
 COCO_KEYPOINT_NAMES = [
-    "nose", "left_eye", "right_eye", "left_ear", "right_ear",
-    "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
-    "left_wrist", "right_wrist", "left_hip", "right_hip",
-    "left_knee", "right_knee", "left_ankle", "right_ankle",
+    "nose",
+    "left_eye",
+    "right_eye",
+    "left_ear",
+    "right_ear",
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow",
+    "left_wrist",
+    "right_wrist",
+    "left_hip",
+    "right_hip",
+    "left_knee",
+    "right_knee",
+    "left_ankle",
+    "right_ankle",
 ]
 
 
@@ -51,21 +77,36 @@ def make_detections(n: int) -> list[dict]:
 
 def make_person_keypoints(cx: float, cy: float, scale: float = 1.0) -> list[dict]:
     offsets = [
-        (0, -100), (-15, -115), (15, -115), (-30, -105), (30, -105),
-        (-50, -60), (50, -60), (-80, -10), (80, -10), (-100, 40),
-        (100, 40), (-35, 30), (35, 30), (-40, 100), (40, 100),
-        (-45, 170), (45, 170),
+        (0, -100),
+        (-15, -115),
+        (15, -115),
+        (-30, -105),
+        (30, -105),
+        (-50, -60),
+        (50, -60),
+        (-80, -10),
+        (80, -10),
+        (-100, 40),
+        (100, 40),
+        (-35, 30),
+        (35, 30),
+        (-40, 100),
+        (40, 100),
+        (-45, 170),
+        (45, 170),
     ]
     keypoints = []
     for i, (dx, dy) in enumerate(offsets):
         rng = np.random.default_rng(seed=42 + i)
         conf = round(float(rng.uniform(0.7, 0.99)), 2)
-        keypoints.append({
-            "x": cx + dx * scale,
-            "y": cy + dy * scale,
-            "name": COCO_KEYPOINT_NAMES[i],
-            "confidence": conf,
-        })
+        keypoints.append(
+            {
+                "x": cx + dx * scale,
+                "y": cy + dy * scale,
+                "name": COCO_KEYPOINT_NAMES[i],
+                "confidence": conf,
+            }
+        )
     return keypoints
 
 
@@ -157,12 +198,15 @@ def browser():
 @pytest.fixture
 def detection_app(browser: Browser):
     """App with 4 bbox-only detections (person, dog, chair, bench)."""
-    value = (make_grid_image(), [
-        {"bbox": {"x": 50, "y": 30, "width": 200, "height": 280}, "score": 0.95, "label": "person"},
-        {"bbox": {"x": 300, "y": 100, "width": 150, "height": 150}, "score": 0.88, "label": "dog"},
-        {"bbox": {"x": 480, "y": 50, "width": 120, "height": 200}, "score": 0.72, "label": "chair"},
-        {"bbox": {"x": 100, "y": 350, "width": 250, "height": 100}, "score": 0.65, "label": "bench"},
-    ])
+    value = (
+        make_grid_image(),
+        [
+            {"bbox": {"x": 50, "y": 30, "width": 200, "height": 280}, "score": 0.95, "label": "person"},
+            {"bbox": {"x": 300, "y": 100, "width": 150, "height": 150}, "score": 0.88, "label": "dog"},
+            {"bbox": {"x": 480, "y": 50, "width": 120, "height": 200}, "score": 0.72, "label": "chair"},
+            {"bbox": {"x": 100, "y": 350, "width": 250, "height": 100}, "score": 0.65, "label": "bench"},
+        ],
+    )
     with gr.Blocks() as demo:
         DetectionViewer(value=value, label="Viewer")
     with GradioApp(demo, browser) as page:

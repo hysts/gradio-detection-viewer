@@ -54,6 +54,7 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "demo/*.py" = ["INP001"]
+"tests/*.py" = ["ANN201", "INP001", "PLC0415", "PLR2004", "S101", "SLF001", "TC002", "TC003"]
 
 [tool.ruff.format]
 docstring-code-format = true

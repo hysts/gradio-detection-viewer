@@ -3,16 +3,15 @@
 from __future__ import annotations
 
 import gradio as gr
-from playwright.sync_api import Browser, expect
-
-from detection_viewer import DetectionViewer
-
 from conftest import (
     GradioApp,
     make_detections,
     make_grid_image,
     make_pose_annotations,
 )
+from playwright.sync_api import Browser, expect
+
+from detection_viewer import DetectionViewer
 
 
 def test_update_from_detections_to_pose(browser: Browser):

@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import gradio as gr
+from conftest import GradioApp, make_detections, make_grid_image
 from playwright.sync_api import Browser
 
 from detection_viewer import DetectionViewer
-
-from conftest import GradioApp, make_detections, make_grid_image
 
 
 def _measure(browser: Browser, list_height: int, n_detections: int) -> dict:
