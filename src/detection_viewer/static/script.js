@@ -30,13 +30,11 @@ element._poseInitialized = true;
     var controlPanel = element.querySelector(".control-panel");
     var annotationList = element.querySelector(".annotation-list");
 
-    // Read configurable threshold defaults
-    var initialScoreThresholdMin = parseFloat(container.getAttribute("data-score-threshold-min")) || 0;
-    var initialScoreThresholdMax = parseFloat(container.getAttribute("data-score-threshold-max"));
-    if (isNaN(initialScoreThresholdMax)) initialScoreThresholdMax = 1;
-    var initialKeypointThreshold = parseFloat(container.getAttribute("data-keypoint-threshold")) || 0;
-    var initialKeypointRadius = parseInt(container.getAttribute("data-keypoint-radius"), 10);
-    if (isNaN(initialKeypointRadius) || initialKeypointRadius < 1) initialKeypointRadius = KEYPOINT_RADIUS;
+    // Read configurable defaults from props (available in js_on_load scope)
+    var initialScoreThresholdMin = props.score_threshold_min || 0;
+    var initialScoreThresholdMax = props.score_threshold_max != null ? props.score_threshold_max : 1;
+    var initialKeypointThreshold = props.keypoint_threshold || 0;
+    var initialKeypointRadius = props.keypoint_radius >= 1 ? props.keypoint_radius : KEYPOINT_RADIUS;
     var toggleImageBtn = element.querySelector(".toggle-image-btn");
     var resetBtn = element.querySelector(".reset-btn");
     var maximizeBtn = element.querySelector(".maximize-btn");
