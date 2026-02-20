@@ -52,14 +52,7 @@ class DetectionViewer(gr.HTML):
         **kwargs: object,
     ) -> None:
         html_template = (_STATIC_DIR / "template.html").read_text(encoding="utf-8")
-        html_template = html_template.replace("${panel_title}", panel_title)
-        html_template = html_template.replace("${list_height}", str(list_height))
-        html_template = html_template.replace("${score_threshold_min}", str(score_threshold[0]))
-        html_template = html_template.replace("${score_threshold_max}", str(score_threshold[1]))
-        html_template = html_template.replace("${keypoint_threshold}", str(keypoint_threshold))
-        html_template = html_template.replace("${keypoint_radius}", str(keypoint_radius))
         css_template = (_STATIC_DIR / "style.css").read_text(encoding="utf-8")
-        css_template = css_template.replace("${list_height}", str(list_height))
         js_on_load = (_STATIC_DIR / "script.js").read_text(encoding="utf-8")
 
         has_label = label is not None
@@ -71,6 +64,12 @@ class DetectionViewer(gr.HTML):
             html_template=html_template,
             css_template=css_template,
             js_on_load=js_on_load,
+            panel_title=panel_title,
+            list_height=list_height,
+            score_threshold_min=score_threshold[0],
+            score_threshold_max=score_threshold[1],
+            keypoint_threshold=keypoint_threshold,
+            keypoint_radius=keypoint_radius,
             **kwargs,
         )
 
