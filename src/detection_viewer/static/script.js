@@ -1,7 +1,3 @@
-// Guard: skip if already initialized
-if (element._poseInitialized) return;
-element._poseInitialized = true;
-
 (function () {
     "use strict";
 
