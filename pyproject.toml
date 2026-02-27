@@ -10,7 +10,7 @@ license = "MIT"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "gradio>=6.6.0",
+    "gradio>=6.8.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -67,5 +67,5 @@ dev = [
     "playwright>=1.58.0",
     "pytest>=9.0.2",
     "pytest-xdist>=3.8.0",
-    "ruff>=0.15.1",
+    "ruff>=0.15.4",
 ]
