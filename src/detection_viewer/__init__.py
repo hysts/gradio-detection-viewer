@@ -122,6 +122,18 @@ class DetectionViewer(gr.HTML):
 
         return json.dumps(result)
 
+    def process_example(self, value: Any) -> str | None:  # noqa: ANN401
+        if value is None:
+            return None
+        image_source = value[0] if isinstance(value, tuple) else value
+        img = _load_image(image_source)
+        url = _save_image_to_cache(img, self.GRADIO_CACHE)
+        return (
+            f'<img src="{url}" alt="example" '
+            f'style="max-width:100%;max-height:5rem;object-fit:contain;'
+            f'display:block;border-radius:4px;">'
+        )
+
     def api_info(self) -> dict[str, Any]:
         return {
             "type": "string",

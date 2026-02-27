@@ -218,6 +218,34 @@ class TestPostprocess:
         assert data["annotations"][0]["label"] == "obj"
 
 
+# ── process_example ──
+
+
+class TestProcessExample:
+    def test_none_returns_none(self):
+        viewer = _make_viewer()
+        assert viewer.process_example(None) is None
+
+    def test_tuple_returns_img_tag(self):
+        img = Image.new("RGB", (100, 100), "red")
+        annotations = [{"bbox": {"x": 0, "y": 0, "width": 10, "height": 10}}]
+        viewer = _make_viewer()
+        result = viewer.process_example((img, annotations))
+        assert result is not None
+        assert result.startswith("<img ")
+        assert 'alt="example"' in result
+        assert "max-height:5rem" in result
+        assert "/gradio_api/file=" in result
+
+    def test_bare_image_returns_img_tag(self):
+        img = Image.new("RGB", (50, 50), "blue")
+        viewer = _make_viewer()
+        result = viewer.process_example(img)
+        assert result is not None
+        assert result.startswith("<img ")
+        assert "/gradio_api/file=" in result
+
+
 # ── api_info ──
 
 

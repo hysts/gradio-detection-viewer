@@ -1,9 +1,13 @@
+.pose-viewer-container,
+.pose-viewer-container * {
+    box-sizing: border-box;
+}
+
 .pose-viewer-container {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     user-select: none;
     width: 100%;
     position: relative;
-    box-sizing: border-box;
 }
 
 /* ── Maximized Overlay ── */
@@ -52,6 +56,10 @@
     justify-content: center;
     border-radius: 4px;
     overflow: hidden;
+}
+
+.pose-viewer-container .canvas-wrapper.visible {
+    display: flex;
 }
 
 .pose-viewer-container .canvas-wrapper canvas {
@@ -182,7 +190,6 @@
     font-size: 11px;
     line-height: 1;
     color: var(--body-text-color, #333);
-    box-sizing: border-box;
 }
 
 .pose-viewer-container .cp-btn:hover {
@@ -366,7 +373,6 @@
     font-size: 11px;
     line-height: 1;
     color: var(--body-text-color, #333);
-    box-sizing: border-box;
 }
 
 .pose-viewer-container .layer-btn.active {
@@ -408,7 +414,6 @@
     font-size: 11px;
     line-height: 1;
     color: var(--body-text-color-subdued, #888);
-    box-sizing: border-box;
 }
 
 .pose-viewer-container .label-filter-btn.active {
@@ -459,7 +464,6 @@
     font-size: 11px;
     line-height: 1;
     color: var(--body-text-color-subdued, #888);
-    box-sizing: border-box;
 }
 
 .pose-viewer-container .sort-btn.active {
@@ -616,7 +620,6 @@
     cursor: pointer;
     font-size: 11px;
     color: var(--body-text-color-subdued, #888);
-    box-sizing: border-box;
 }
 
 .pose-viewer-container .draw-options-toggle:hover {

@@ -84,6 +84,22 @@
     });
     observer.observe(dataScript, { childList: true, characterData: true, subtree: true });
 
+    // Re-assert JS-managed CSS classes after Gradio's DOM morphing
+    // wipes them back to template defaults.
+    function syncUIState() {
+        container.classList.toggle("maximized", state.maximized);
+        toggleImageBtn.classList.toggle("active", state.showImage);
+        if (state.image) {
+            canvasWrapper.classList.add("visible");
+        }
+    }
+    var containerObserver = new MutationObserver(function () {
+        syncUIState();
+    });
+    containerObserver.observe(container, {
+        attributes: true, attributeFilter: ["class"]
+    });
+
     // Also handle initial value
     handleValueChange();
 
@@ -124,6 +140,7 @@
         // classes back to template defaults on every value change,
         // so we must re-establish the display state here.
         showLoading();
+        syncUIState();
 
         var img = new Image();
         img.onload = function () {
@@ -155,6 +172,7 @@
             }
 
             showContent();
+            syncUIState();
             state.sortMode = getDefaultSortMode();
             requestAnimationFrame(function () {
                 fitCanvas();
@@ -175,7 +193,7 @@
         state.annotations = [];
         state.visibility = [];
         state.selectedIndex = -1;
-        canvasWrapper.style.display = "none";
+        canvasWrapper.classList.remove("visible");
         loadingIndicator.classList.remove("visible");
         controlPanel.classList.remove("visible");
         tooltip.classList.remove("visible");
@@ -184,7 +202,7 @@
 
     function showLoading() {
         placeholder.classList.add("hidden");
-        canvasWrapper.style.display = "none";
+        canvasWrapper.classList.remove("visible");
         controlPanel.classList.remove("visible");
         loadingIndicator.classList.add("visible");
     }
@@ -192,7 +210,7 @@
     function showContent() {
         placeholder.classList.add("hidden");
         loadingIndicator.classList.remove("visible");
-        canvasWrapper.style.display = "flex";
+        canvasWrapper.classList.add("visible");
     }
 
     // ── Canvas Sizing ─────────────────────────────────────────────
