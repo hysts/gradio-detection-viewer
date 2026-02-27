@@ -4,18 +4,8 @@ from __future__ import annotations
 
 import re
 
+from _helpers import focus_viewer, focus_without_canvas_click
 from playwright.sync_api import Page, expect
-
-
-def _focus_viewer(page: Page) -> None:
-    """Click the canvas area to ensure the component has keyboard focus."""
-    page.locator(".canvas-wrapper").click()
-
-
-def _focus_without_canvas_click(page: Page) -> None:
-    """Focus the component element for keyboard events without triggering canvas mouse handlers."""
-    page.evaluate("() => document.querySelector('.pose-viewer-container').parentElement.focus()")
-
 
 # ── H key: hide selected annotation ──
 
@@ -28,7 +18,7 @@ def test_key_h_hides_selected(detection_app: Page):
     expect(row).to_have_class(re.compile("selected"))
 
     # Focus the component without clicking the canvas (which would deselect)
-    _focus_without_canvas_click(detection_app)
+    focus_without_canvas_click(detection_app)
     detection_app.keyboard.press("h")
 
     # The first checkbox should now be unchecked
@@ -37,12 +27,12 @@ def test_key_h_hides_selected(detection_app: Page):
 
     # No row should be selected after hiding
     rows = detection_app.locator(".annotation-row.selected")
-    assert rows.count() == 0
+    expect(rows).to_have_count(0)
 
 
 def test_key_h_no_effect_without_selection(detection_app: Page):
     """Pressing 'h' without a selected annotation should not change any checkbox."""
-    _focus_without_canvas_click(detection_app)
+    focus_without_canvas_click(detection_app)
 
     # All checkboxes should be checked initially
     checkboxes = detection_app.locator(".ann-checkbox")
@@ -67,11 +57,11 @@ def test_escape_deselects_annotation(detection_app: Page):
     row.click()
     expect(row).to_have_class(re.compile("selected"))
 
-    _focus_without_canvas_click(detection_app)
+    focus_without_canvas_click(detection_app)
     detection_app.keyboard.press("Escape")
 
     rows = detection_app.locator(".annotation-row.selected")
-    assert rows.count() == 0
+    expect(rows).to_have_count(0)
 
 
 # ── Zoom keyboard shortcuts ──
@@ -91,7 +81,7 @@ def _get_cursor_at_empty_area(page: Page) -> str:
 
 def test_key_plus_zooms_in(detection_app: Page):
     """Pressing '+' should increase zoom level (cursor becomes 'grab' in empty area)."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     detection_app.keyboard.press("+")
     detection_app.wait_for_timeout(100)
 
@@ -101,7 +91,7 @@ def test_key_plus_zooms_in(detection_app: Page):
 
 def test_key_minus_does_not_go_below_min(detection_app: Page):
     """Pressing '-' at minimum zoom should keep zoom at 1 (cursor stays 'default')."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     detection_app.keyboard.press("-")
     detection_app.wait_for_timeout(100)
 
@@ -111,7 +101,7 @@ def test_key_minus_does_not_go_below_min(detection_app: Page):
 
 def test_key_0_resets_zoom(detection_app: Page):
     """Pressing '0' should reset zoom to 1 after zooming in."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
 
     # Zoom in first
     detection_app.keyboard.press("+")
@@ -122,7 +112,7 @@ def test_key_0_resets_zoom(detection_app: Page):
     assert cursor_zoomed == "grab"
 
     # Reset zoom
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     detection_app.keyboard.press("0")
     detection_app.wait_for_timeout(100)
 
@@ -132,7 +122,7 @@ def test_key_0_resets_zoom(detection_app: Page):
 
 def test_key_plus_minus_round_trip(detection_app: Page):
     """Zooming in then resetting with '0' should return to normal state."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
 
     detection_app.keyboard.press("+")
     detection_app.keyboard.press("+")
@@ -142,7 +132,7 @@ def test_key_plus_minus_round_trip(detection_app: Page):
     cursor_zoomed = _get_cursor_at_empty_area(detection_app)
     assert cursor_zoomed == "grab"
 
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     detection_app.keyboard.press("0")
     detection_app.wait_for_timeout(100)
 

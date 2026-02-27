@@ -11,7 +11,7 @@ from playwright.sync_api import Page, expect
 
 def test_no_layer_toggles_for_bbox_only(detection_app: Page):
     """Bbox-only annotations should not show layer toggles (only 1 type)."""
-    assert detection_app.locator(".layer-toggles").count() == 0
+    expect(detection_app.locator(".layer-toggles")).to_have_count(0)
 
 
 def test_layer_toggles_for_pose(pose_app: Page):
@@ -50,7 +50,7 @@ def test_sort_controls_for_detections_with_bbox(detection_app: Page):
     expect(sort).to_be_visible()
 
     btns = detection_app.locator(".sort-btn")
-    assert btns.count() == 2  # score, size
+    expect(btns).to_have_count(2)  # score, size
 
 
 def test_sort_by_score_toggles(detection_app: Page):
@@ -84,7 +84,7 @@ def test_mask_opacity_slider_for_segmentation(segmentation_app: Page):
 def test_no_mask_slider_for_bbox_only(detection_app: Page):
     """Bbox-only annotations should not have mask opacity slider."""
     detection_app.locator(".draw-options-toggle").click()
-    assert detection_app.locator(".mask-alpha-slider").count() == 0
+    expect(detection_app.locator(".mask-alpha-slider")).to_have_count(0)
 
 
 def test_keypoint_controls_for_pose(pose_app: Page):
@@ -97,8 +97,8 @@ def test_keypoint_controls_for_pose(pose_app: Page):
 def test_no_keypoint_controls_for_bbox_only(detection_app: Page):
     """Bbox-only annotations should not have keypoint/connection sliders."""
     detection_app.locator(".draw-options-toggle").click()
-    assert detection_app.locator(".keypoint-radius-slider").count() == 0
-    assert detection_app.locator(".connection-width-slider").count() == 0
+    expect(detection_app.locator(".keypoint-radius-slider")).to_have_count(0)
+    expect(detection_app.locator(".connection-width-slider")).to_have_count(0)
 
 
 def test_bbox_line_width_slider_present(detection_app: Page):

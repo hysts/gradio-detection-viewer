@@ -11,6 +11,19 @@ import numpy as np
 from PIL import Image, ImageDraw
 from playwright.sync_api import Browser, Page
 
+# ── Focus helpers ──
+
+
+def focus_viewer(page: Page) -> None:
+    """Click the canvas area to ensure the component has keyboard focus."""
+    page.locator(".canvas-wrapper").click()
+
+
+def focus_without_canvas_click(page: Page) -> None:
+    """Focus the component element for keyboard events without triggering canvas mouse handlers."""
+    page.evaluate("() => document.querySelector('.pose-viewer-container').parentElement.focus()")
+
+
 COCO_SKELETON = [
     [0, 1],
     [0, 2],
@@ -163,6 +176,25 @@ def make_segmentation_annotations() -> list[dict]:
             "label": "dog",
         },
     ]
+
+
+def set_range_value(page: Page, selector: str, value: int) -> None:
+    """Set a range input's value using the native setter to trigger an 'input' event.
+
+    Playwright cannot ``fill()`` range inputs, so this uses ``evaluate()``
+    with the native ``HTMLInputElement.value`` setter.
+    """
+    page.evaluate(
+        """([sel, val]) => {
+            const slider = document.querySelector(sel);
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype, 'value'
+            ).set;
+            nativeInputValueSetter.call(slider, String(val));
+            slider.dispatchEvent(new Event('input', { bubbles: true }));
+        }""",
+        [selector, value],
+    )
 
 
 class GradioApp:

@@ -32,17 +32,15 @@ def test_deactivated_label_dims_rows(detection_app: Page):
     # Get the label text from the first button
     btn = detection_app.locator(".label-filter-btn").first
     btn.click()
-    detection_app.wait_for_timeout(200)
 
     filtered = detection_app.locator(".annotation-row.filtered-out")
-    assert filtered.count() > 0
+    expect(filtered.first).to_be_visible()
 
 
 def test_hidden_group_separator(detection_app: Page):
     """Deactivating a label should show a 'Hidden' group separator."""
     btn = detection_app.locator(".label-filter-btn").first
     btn.click()
-    detection_app.wait_for_timeout(200)
 
     separator = detection_app.locator(".annotation-group-separator")
     expect(separator).to_be_visible()
@@ -53,9 +51,7 @@ def test_reactivate_label_removes_filter(detection_app: Page):
     """Clicking a deactivated label should reactivate it and remove filtering."""
     btn = detection_app.locator(".label-filter-btn").first
     btn.click()
-    detection_app.wait_for_timeout(200)
-    assert detection_app.locator(".annotation-row.filtered-out").count() > 0
+    expect(detection_app.locator(".annotation-row.filtered-out").first).to_be_visible()
 
     btn.click()
-    detection_app.wait_for_timeout(200)
-    assert detection_app.locator(".annotation-row.filtered-out").count() == 0
+    expect(detection_app.locator(".annotation-row.filtered-out")).to_have_count(0)

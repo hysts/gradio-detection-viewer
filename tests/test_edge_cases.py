@@ -29,7 +29,7 @@ def test_empty_annotations_shows_content(browser: Browser):
 
         # No annotation rows
         rows = page.locator(".annotation-row")
-        assert rows.count() == 0
+        expect(rows).to_have_count(0)
 
 
 def test_empty_annotations_hides_control_panel(browser: Browser):
@@ -76,7 +76,7 @@ def test_no_sort_controls_without_both_score_and_bbox(browser: Browser):
         DetectionViewer(value=value, label="Viewer")
     with GradioApp(demo, browser) as page:
         sort = page.locator(".sort-controls")
-        assert sort.count() == 0
+        expect(sort).to_have_count(0)
 
 
 # ── Annotations without bbox (keypoints only) ──
@@ -188,7 +188,6 @@ def test_shift_click_hides_annotation(browser: Browser):
         page.keyboard.down("Shift")
         page.mouse.click(click_x, click_y)
         page.keyboard.up("Shift")
-        page.wait_for_timeout(300)
 
         checkbox = page.locator(".ann-checkbox").first
         expect(checkbox).not_to_be_checked()

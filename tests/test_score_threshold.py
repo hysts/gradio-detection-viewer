@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import gradio as gr
-from _helpers import GradioApp, make_grid_image
+from _helpers import GradioApp, make_grid_image, set_range_value
 from playwright.sync_api import Browser, Page, expect
 
 from detection_viewer import DetectionViewer
@@ -40,22 +40,14 @@ def test_raise_min_threshold_dims_rows(browser: Browser):
         DetectionViewer(value=value, label="Viewer")
     with GradioApp(demo, browser) as page:
         # Initially no rows should be below threshold
-        assert page.locator(".annotation-row.below-threshold").count() == 0
+        expect(page.locator(".annotation-row.below-threshold")).to_have_count(0)
 
         # Set min threshold to 50% via JS
-        page.evaluate("""() => {
-            const slider = document.querySelector('.threshold-slider-min');
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-                window.HTMLInputElement.prototype, 'value'
-            ).set;
-            nativeInputValueSetter.call(slider, '50');
-            slider.dispatchEvent(new Event('input', { bubbles: true }));
-        }""")
-        page.wait_for_timeout(200)
+        set_range_value(page, ".threshold-slider-min", 50)
 
         # The low-score row should now be dimmed
         dimmed = page.locator(".annotation-row.below-threshold")
-        assert dimmed.count() == 1
+        expect(dimmed).to_have_count(1)
 
 
 def test_lower_max_threshold_dims_rows(browser: Browser):
@@ -70,19 +62,11 @@ def test_lower_max_threshold_dims_rows(browser: Browser):
         DetectionViewer(value=value, label="Viewer")
     with GradioApp(demo, browser) as page:
         # Set max threshold to 50% via JS
-        page.evaluate("""() => {
-            const slider = document.querySelector('.threshold-slider-max');
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-                window.HTMLInputElement.prototype, 'value'
-            ).set;
-            nativeInputValueSetter.call(slider, '50');
-            slider.dispatchEvent(new Event('input', { bubbles: true }));
-        }""")
-        page.wait_for_timeout(200)
+        set_range_value(page, ".threshold-slider-max", 50)
 
         # The high-score row should now be dimmed
         dimmed = page.locator(".annotation-row.below-threshold")
-        assert dimmed.count() == 1
+        expect(dimmed).to_have_count(1)
 
 
 # ── Custom score_threshold parameter ──
@@ -107,7 +91,7 @@ def test_custom_score_threshold_parameter(browser: Browser):
 
         # Rows outside the range should be dimmed
         dimmed = page.locator(".annotation-row.below-threshold")
-        assert dimmed.count() == 2  # low (0.2 < 0.3) and high (0.9 > 0.7)
+        expect(dimmed).to_have_count(2)  # low (0.2 < 0.3) and high (0.9 > 0.7)
 
 
 # ── 3-tuple config override ──
@@ -128,14 +112,13 @@ def test_config_overrides_threshold(browser: Browser):
         btn.click(fn=lambda: config_value, outputs=viewer)
     with GradioApp(demo, browser) as page:
         # Initially no filtering
-        assert page.locator(".annotation-row.below-threshold").count() == 0
+        expect(page.locator(".annotation-row.below-threshold")).to_have_count(0)
 
         page.get_by_role("button", name="Apply config").click()
-        page.wait_for_timeout(1000)
+
+        dimmed = page.locator(".annotation-row.below-threshold")
+        expect(dimmed).to_have_count(1)  # low score (0.2) is below 0.5
 
         label = page.locator(".threshold-value")
         text = label.text_content()
         assert "50%" in text
-
-        dimmed = page.locator(".annotation-row.below-threshold")
-        assert dimmed.count() == 1  # low score (0.2) is below 0.5

@@ -21,35 +21,28 @@ class TestLoadImage:
         assert isinstance(result, Image.Image)
         assert result is img
 
-    def test_from_numpy_array(self):
-        arr = np.zeros((100, 100, 3), dtype=np.uint8)
+    @pytest.mark.parametrize(
+        ("shape", "expected_size"),
+        [((100, 100, 3), (100, 100)), ((80, 120, 4), (120, 80))],
+        ids=["rgb", "rgba"],
+    )
+    def test_from_numpy_array(self, shape: tuple, expected_size: tuple):
+        arr = np.zeros(shape, dtype=np.uint8)
         result = _load_image(arr)
         assert isinstance(result, Image.Image)
-        assert result.size == (100, 100)
+        assert result.size == expected_size
 
-    def test_from_str_path(self, tmp_path: Path):
+    @pytest.mark.parametrize("as_str", [True, False], ids=["str_path", "path_object"])
+    def test_from_filesystem_path(self, tmp_path: Path, *, as_str: bool):
         img_path = tmp_path / "test.png"
         Image.new("RGB", (50, 50), "blue").save(img_path)
-        result = _load_image(str(img_path))
-        assert isinstance(result, Image.Image)
-        assert result.size == (50, 50)
-
-    def test_from_path_object(self, tmp_path: Path):
-        img_path = tmp_path / "test.png"
-        Image.new("RGB", (50, 50), "green").save(img_path)
-        result = _load_image(img_path)
+        result = _load_image(str(img_path) if as_str else img_path)
         assert isinstance(result, Image.Image)
         assert result.size == (50, 50)
 
     def test_from_invalid_path_raises(self):
         with pytest.raises(FileNotFoundError):
             _load_image("/nonexistent/path/image.png")
-
-    def test_from_rgba_numpy(self):
-        arr = np.zeros((80, 120, 4), dtype=np.uint8)
-        result = _load_image(arr)
-        assert isinstance(result, Image.Image)
-        assert result.size == (120, 80)
 
 
 # ── _process ──

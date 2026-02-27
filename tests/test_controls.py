@@ -4,13 +4,8 @@ from __future__ import annotations
 
 import re
 
+from _helpers import focus_viewer
 from playwright.sync_api import Page, expect
-
-
-def _focus_viewer(page: Page) -> None:
-    """Click the canvas area to ensure the component has keyboard focus."""
-    page.locator(".canvas-wrapper").click()
-
 
 # ── Image toggle ──
 
@@ -69,7 +64,7 @@ def test_help_close_button(detection_app: Page):
 
 def test_key_i_toggles_image(detection_app: Page):
     """Pressing 'i' should toggle image visibility."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     btn = detection_app.locator(".toggle-image-btn")
     expect(btn).to_have_class(re.compile("active"))
 
@@ -82,7 +77,7 @@ def test_key_i_toggles_image(detection_app: Page):
 
 def test_key_f_toggles_maximize(detection_app: Page):
     """Pressing 'f' should toggle maximize mode."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     container = detection_app.locator(".pose-viewer-container")
 
     detection_app.keyboard.press("f")
@@ -94,7 +89,7 @@ def test_key_f_toggles_maximize(detection_app: Page):
 
 def test_key_escape_exits_maximize(detection_app: Page):
     """Pressing Escape while maximized should exit maximize mode."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     container = detection_app.locator(".pose-viewer-container")
 
     detection_app.keyboard.press("f")
@@ -106,7 +101,7 @@ def test_key_escape_exits_maximize(detection_app: Page):
 
 def test_key_question_mark_opens_help(detection_app: Page):
     """Pressing '?' should open the help dialog."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     overlay = detection_app.locator(".help-overlay")
 
     detection_app.keyboard.press("?")
@@ -115,7 +110,7 @@ def test_key_question_mark_opens_help(detection_app: Page):
 
 def test_key_escape_closes_help(detection_app: Page):
     """Pressing Escape should close the help dialog."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     overlay = detection_app.locator(".help-overlay")
 
     detection_app.keyboard.press("?")
@@ -127,7 +122,7 @@ def test_key_escape_closes_help(detection_app: Page):
 
 def test_key_a_toggles_all(detection_app: Page):
     """Pressing 'a' should toggle all annotations."""
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
 
     detection_app.keyboard.press("a")
     checkboxes = detection_app.locator(".ann-checkbox")
@@ -164,7 +159,7 @@ def test_key_r_resets(detection_app: Page):
     btn = detection_app.locator(".toggle-image-btn")
     expect(btn).not_to_have_class(re.compile("active"))
 
-    _focus_viewer(detection_app)
+    focus_viewer(detection_app)
     detection_app.keyboard.press("r")
     expect(btn).to_have_class(re.compile("active"))
 

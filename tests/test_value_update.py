@@ -28,11 +28,10 @@ def test_update_from_detections_to_pose(browser: Browser):
         # Initially: 4 detection rows, no layer toggles
         rows = page.locator(".annotation-row")
         expect(rows).to_have_count(4)
-        assert page.locator(".layer-toggles").count() == 0
+        expect(page.locator(".layer-toggles")).to_have_count(0)
 
         # Click the button to switch
         page.get_by_role("button", name="Switch to pose").click()
-        page.wait_for_timeout(1000)
 
         # After update: 2 pose rows, layer toggles visible
         rows = page.locator(".annotation-row")
@@ -53,7 +52,6 @@ def test_update_to_none_shows_placeholder(browser: Browser):
         expect(page.locator(".control-panel")).to_be_visible()
 
         page.get_by_role("button", name="Clear").click()
-        page.wait_for_timeout(1000)
 
         placeholder = page.locator(".placeholder")
         expect(placeholder).to_be_visible()
