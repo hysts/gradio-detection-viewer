@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 
 import gradio as gr
-from conftest import (
+from _helpers import (
     COCO_SKELETON,
     GradioApp,
     make_grid_image,

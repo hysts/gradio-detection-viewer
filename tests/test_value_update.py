@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import gradio as gr
-from conftest import (
+from _helpers import (
     GradioApp,
     make_detections,
     make_grid_image,

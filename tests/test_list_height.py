@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import gradio as gr
-from conftest import GradioApp, make_detections, make_grid_image
+from _helpers import GradioApp, make_detections, make_grid_image
 from playwright.sync_api import Browser
 
 from detection_viewer import DetectionViewer
