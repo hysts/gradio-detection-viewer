@@ -18,7 +18,7 @@ packages = ["src/detection_viewer"]
 
 [tool.ruff]
 line-length = 119
-exclude = ["*.pyi"]
+extend-exclude = ["*.pyi"]
 
 [tool.ruff.lint]
 select = ["ALL"]
