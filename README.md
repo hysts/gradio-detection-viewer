@@ -135,7 +135,7 @@ The image can be a file path (`str` / `Path`), a `PIL.Image.Image`, or a `numpy.
 ## Demo
 
 ```bash
-uv run python demo/showcase/app.py
+cd demo/showcase && uv run python app.py
 ```
 
 The showcase demo provides preset examples: pose estimation, object detection, combined detection + pose, segmentation, and stress tests.
@@ -143,10 +143,10 @@ The showcase demo provides preset examples: pose estimation, object detection, c
 Model-specific demos are also available (require `transformers` and `torch`):
 
 ```bash
-uv run python demo/vitpose/app.py          # ViTPose pose estimation
-uv run python demo/rtdetr/app.py            # RT-DETR object detection
-uv run python demo/grounding-dino/app.py    # Grounding DINO zero-shot detection
-uv run python demo/mask2former/app.py       # Mask2Former instance segmentation
+cd demo/vitpose && uv run python app.py          # ViTPose pose estimation
+cd demo/rtdetr && uv run python app.py            # RT-DETR object detection
+cd demo/grounding-dino && uv run python app.py    # Grounding DINO zero-shot detection
+cd demo/mask2former && uv run python app.py       # Mask2Former instance segmentation
 ```
 
 ## Testing
