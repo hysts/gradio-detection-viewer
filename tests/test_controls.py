@@ -26,15 +26,15 @@ def test_image_toggle_button(detection_app: Page):
 
 
 def test_maximize_button(detection_app: Page):
-    """Maximize button should add 'maximized' class to the container."""
-    container = detection_app.locator(".pose-viewer-container")
+    """Maximize button should add 'maximized' class to the wrapper (element)."""
+    wrapper = detection_app.locator(".pose-viewer-container").first.locator("xpath=..")
     btn = detection_app.locator(".maximize-btn")
 
     btn.click()
-    expect(container).to_have_class(re.compile("maximized"))
+    expect(wrapper).to_have_class(re.compile("maximized"))
 
     btn.click()
-    expect(container).not_to_have_class(re.compile("maximized"))
+    expect(wrapper).not_to_have_class(re.compile("maximized"))
 
 
 # ── Help dialog ──
@@ -78,25 +78,25 @@ def test_key_i_toggles_image(detection_app: Page):
 def test_key_f_toggles_maximize(detection_app: Page):
     """Pressing 'f' should toggle maximize mode."""
     focus_viewer(detection_app)
-    container = detection_app.locator(".pose-viewer-container")
+    wrapper = detection_app.locator(".pose-viewer-container").first.locator("xpath=..")
 
     detection_app.keyboard.press("f")
-    expect(container).to_have_class(re.compile("maximized"))
+    expect(wrapper).to_have_class(re.compile("maximized"))
 
     detection_app.keyboard.press("f")
-    expect(container).not_to_have_class(re.compile("maximized"))
+    expect(wrapper).not_to_have_class(re.compile("maximized"))
 
 
 def test_key_escape_exits_maximize(detection_app: Page):
     """Pressing Escape while maximized should exit maximize mode."""
     focus_viewer(detection_app)
-    container = detection_app.locator(".pose-viewer-container")
+    wrapper = detection_app.locator(".pose-viewer-container").first.locator("xpath=..")
 
     detection_app.keyboard.press("f")
-    expect(container).to_have_class(re.compile("maximized"))
+    expect(wrapper).to_have_class(re.compile("maximized"))
 
     detection_app.keyboard.press("Escape")
-    expect(container).not_to_have_class(re.compile("maximized"))
+    expect(wrapper).not_to_have_class(re.compile("maximized"))
 
 
 def test_key_question_mark_opens_help(detection_app: Page):

@@ -41,6 +41,27 @@
     var placeholder = element.querySelector(".placeholder");
     var countEl = element.querySelector(".control-panel-count");
 
+    // ── Ancestor Opacity Pinning ────────────────────────────────────
+    // Gradio's "pending" class sets opacity < 1 on ancestors, creating a
+    // stacking context that traps z-index.  Pin ancestors to opacity: 1
+    // while the maximized overlay is active.
+
+    var _opacityPinnedEls = [];
+
+    function pinAncestorOpacity() {
+        _opacityPinnedEls.forEach(function (el) {
+            el.style.removeProperty("opacity");
+        });
+        _opacityPinnedEls = [];
+        if (!state.maximized) return;
+        var el = element.parentElement;
+        while (el && el !== document.documentElement) {
+            el.style.setProperty("opacity", "1", "important");
+            _opacityPinnedEls.push(el);
+            el = el.parentElement;
+        }
+    }
+
     // ── State ──────────────────────────────────────────────────────
 
     var state = {
@@ -85,9 +106,9 @@
     observer.observe(dataScript, { childList: true, characterData: true, subtree: true });
 
     // Re-assert JS-managed CSS classes after Gradio's DOM morphing
-    // wipes them back to template defaults.
+    // wipes them back to template defaults.  The "maximized" class lives
+    // on `element` (outside morph scope), so it survives automatically.
     function syncUIState() {
-        container.classList.toggle("maximized", state.maximized);
         toggleImageBtn.classList.toggle("active", state.showImage);
         if (state.image) {
             canvasWrapper.classList.add("visible");
@@ -141,6 +162,7 @@
         // so we must re-establish the display state here.
         showLoading();
         syncUIState();
+        pinAncestorOpacity();
 
         var img = new Image();
         img.onload = function () {
@@ -219,6 +241,7 @@
         if (!state.image) return;
 
         var img = state.image;
+        var newW, newH;
 
         if (state.maximized) {
             var wrapperW = canvasWrapper.clientWidth || window.innerWidth;
@@ -232,8 +255,8 @@
                 w = img.naturalWidth * (h / img.naturalHeight);
             }
 
-            canvas.width = Math.round(w);
-            canvas.height = Math.round(h);
+            newW = Math.round(w);
+            newH = Math.round(h);
         } else {
             var maxWidth = canvasWrapper.clientWidth || 800;
 
@@ -245,8 +268,14 @@
                 w = img.naturalWidth * (h / img.naturalHeight);
             }
 
-            canvas.width = Math.round(w);
-            canvas.height = Math.round(h);
+            newW = Math.round(w);
+            newH = Math.round(h);
+        }
+
+        // Guard: assigning the same value clears canvas content per HTML5 spec
+        if (canvas.width !== newW || canvas.height !== newH) {
+            canvas.width = newW;
+            canvas.height = newH;
         }
         state.scale = canvas.width / img.naturalWidth;
     }
@@ -1288,7 +1317,8 @@
     // Maximize / minimize
     function toggleMaximize() {
         state.maximized = !state.maximized;
-        container.classList.toggle("maximized", state.maximized);
+        element.classList.toggle("maximized", state.maximized);
+        pinAncestorOpacity();
 
         if (state.maximized) {
             document.body.style.overflow = "hidden";

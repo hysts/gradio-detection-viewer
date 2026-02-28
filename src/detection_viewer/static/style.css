@@ -12,7 +12,7 @@
 
 /* ── Maximized Overlay ── */
 
-.pose-viewer-container.maximized {
+&.maximized .pose-viewer-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -26,14 +26,14 @@
     overflow: hidden;
 }
 
-.pose-viewer-container.maximized .canvas-wrapper {
+&.maximized .canvas-wrapper {
     flex: 1;
     min-height: 0;
     border-radius: 0;
     align-items: center;
 }
 
-.pose-viewer-container.maximized .control-panel {
+&.maximized .control-panel {
     flex-shrink: 0;
     max-height: 40vh;
     border-radius: 0;
@@ -43,7 +43,7 @@
     margin-top: 0;
 }
 
-.pose-viewer-container.maximized .maximize-btn {
+&.maximized .maximize-btn {
     background: var(--color-accent, #2196F3);
     color: #fff;
     border-color: var(--color-accent, #2196F3);
@@ -668,7 +668,7 @@
     align-items: center;
 }
 
-.pose-viewer-container.maximized .help-overlay {
+&.maximized .help-overlay {
     position: fixed;
 }
 
