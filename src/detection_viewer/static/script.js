@@ -121,6 +121,105 @@
         attributes: true, attributeFilter: ["class"]
     });
 
+    // ── Event Delegation on annotationList ──────────────────────────
+    // One-time setup: delegate click, dblclick, input, and change
+    // events so that renderControlPanel() never re-binds listeners.
+
+    annotationList.addEventListener("click", function (e) {
+        var target = e.target;
+
+        // Ignore clicks on checkboxes (handled by change delegation)
+        if (target.closest(".ann-checkbox") || target.closest(".select-all-checkbox")) {
+            return;
+        }
+
+        var layerBtn = target.closest(".layer-btn");
+        if (layerBtn) {
+            var layer = layerBtn.getAttribute("data-layer");
+            if (layer && state.layers.hasOwnProperty(layer)) {
+                state.layers[layer] = !state.layers[layer];
+                render();
+                renderControlPanel();
+            }
+            return;
+        }
+
+        var labelBtn = target.closest(".label-filter-btn");
+        if (labelBtn) {
+            handleLabelFilterClick(labelBtn);
+            return;
+        }
+
+        var sortBtn = target.closest(".sort-btn");
+        if (sortBtn) {
+            handleSortToggle(sortBtn);
+            return;
+        }
+
+        var drawToggle = target.closest(".draw-options-toggle");
+        if (drawToggle) {
+            var section = drawToggle.closest(".draw-options");
+            section.classList.toggle("open");
+            state.drawOptionsOpen = section.classList.contains("open");
+            return;
+        }
+
+        var expandBtn = target.closest(".ann-expand");
+        if (expandBtn) {
+            var idx = parseInt(expandBtn.getAttribute("data-index"), 10);
+            state.expandedIndex = state.expandedIndex === idx ? -1 : idx;
+            renderControlPanel();
+            return;
+        }
+
+        var row = target.closest(".annotation-row");
+        if (row) {
+            var idx = parseInt(row.getAttribute("data-index"), 10);
+            state.selectedIndex = state.selectedIndex === idx ? -1 : idx;
+            render();
+            renderControlPanel();
+        }
+    });
+
+    annotationList.addEventListener("dblclick", function (e) {
+        var labelBtn = e.target.closest(".label-filter-btn");
+        if (labelBtn) {
+            e.preventDefault();
+            handleLabelFilterDblClick(labelBtn);
+        }
+    });
+
+    annotationList.addEventListener("input", function (e) {
+        var target = e.target;
+        if (target.classList.contains("threshold-slider-min")) handleThresholdMinChange(e);
+        else if (target.classList.contains("threshold-slider-max")) handleThresholdMaxChange(e);
+        else if (target.classList.contains("keypoint-threshold-slider")) handleKeypointThresholdChange(e);
+        else if (target.classList.contains("mask-alpha-slider")) handleMaskAlphaChange(e);
+        else if (target.classList.contains("keypoint-radius-slider")) handleKeypointRadiusChange(e);
+        else if (target.classList.contains("connection-width-slider")) handleConnectionWidthChange(e);
+        else if (target.classList.contains("connection-alpha-slider")) handleConnectionAlphaChange(e);
+        else if (target.classList.contains("bbox-line-width-slider")) handleBboxLineWidthChange(e);
+    });
+
+    annotationList.addEventListener("change", function (e) {
+        var target = e.target;
+        if (target.classList.contains("select-all-checkbox")) {
+            var newVal = target.checked;
+            for (var i = 0; i < state.visibility.length; i++) {
+                state.visibility[i] = newVal;
+            }
+            render();
+            renderControlPanel();
+            return;
+        }
+        if (target.classList.contains("ann-checkbox")) {
+            var idx = parseInt(target.getAttribute("data-index"), 10);
+            state.visibility[idx] = target.checked;
+            render();
+            updateHeaderStats();
+        }
+    });
+
     // Also handle initial value
     handleValueChange();
 
@@ -705,8 +804,8 @@
         state.sortedIndices = indices;
     }
 
-    function handleSortToggle(e) {
-        var key = e.currentTarget.getAttribute("data-sort-key");
+    function handleSortToggle(btn) {
+        var key = btn.getAttribute("data-sort-key");
         if (!key) return;
         // Toggle direction if same key is already active
         if (state.sortMode === key + "-desc") {
@@ -961,109 +1060,16 @@
         var dualWrapper = annotationList.querySelector(".dual-range-wrapper");
         if (dualWrapper) updateDualRangeTrack(dualWrapper);
 
-        // Bind layer toggle events
-        var layerBtns = annotationList.querySelectorAll(".layer-btn");
-        for (var i = 0; i < layerBtns.length; i++) {
-            layerBtns[i].addEventListener("click", handleLayerToggle);
-        }
-
-        // Bind label filter events (single-click: toggle, double-click: solo)
-        var labelBtns = annotationList.querySelectorAll(".label-filter-btn");
-        for (var i = 0; i < labelBtns.length; i++) {
-            labelBtns[i].addEventListener("click", handleLabelFilterClick);
-            labelBtns[i].addEventListener("dblclick", handleLabelFilterDblClick);
-        }
-
-        // Bind sort button events
-        var sortBtns = annotationList.querySelectorAll(".sort-btn");
-        for (var i = 0; i < sortBtns.length; i++) {
-            sortBtns[i].addEventListener("click", handleSortToggle);
-        }
-
-        // Bind dual threshold sliders
-        var sliderMin = annotationList.querySelector(".threshold-slider-min");
-        var sliderMax = annotationList.querySelector(".threshold-slider-max");
-        if (sliderMin) sliderMin.addEventListener("input", handleThresholdMinChange);
-        if (sliderMax) sliderMax.addEventListener("input", handleThresholdMaxChange);
-
-        // Bind keypoint threshold slider
-        var kpSlider = annotationList.querySelector(".keypoint-threshold-slider");
-        if (kpSlider) {
-            kpSlider.addEventListener("input", handleKeypointThresholdChange);
-        }
-
-        // Bind draw options toggle
-        var drawToggle = annotationList.querySelector(".draw-options-toggle");
-        if (drawToggle) {
-            drawToggle.addEventListener("click", function () {
-                var section = drawToggle.closest(".draw-options");
-                section.classList.toggle("open");
-                state.drawOptionsOpen = section.classList.contains("open");
-            });
-        }
-
-        // Bind visual parameter sliders
-        var maSlider = annotationList.querySelector(".mask-alpha-slider");
-        if (maSlider) {
-            maSlider.addEventListener("input", handleMaskAlphaChange);
-        }
-        var krSlider = annotationList.querySelector(".keypoint-radius-slider");
-        if (krSlider) {
-            krSlider.addEventListener("input", handleKeypointRadiusChange);
-        }
-        var cwSlider = annotationList.querySelector(".connection-width-slider");
-        if (cwSlider) {
-            cwSlider.addEventListener("input", handleConnectionWidthChange);
-        }
-        var caSlider = annotationList.querySelector(".connection-alpha-slider");
-        if (caSlider) {
-            caSlider.addEventListener("input", handleConnectionAlphaChange);
-        }
-        var blwSlider = annotationList.querySelector(".bbox-line-width-slider");
-        if (blwSlider) {
-            blwSlider.addEventListener("input", handleBboxLineWidthChange);
-        }
-
         // Initialize single slider track fills
         var singleSliders = annotationList.querySelectorAll('.threshold-row input[type="range"]:not(.threshold-slider-min):not(.threshold-slider-max)');
         for (var i = 0; i < singleSliders.length; i++) {
             updateSliderTrack(singleSliders[i]);
         }
 
-        // Bind select-all checkbox
+        // Set indeterminate state on select-all checkbox
         var selectAllCb = annotationList.querySelector(".select-all-checkbox");
-        if (selectAllCb) {
-            // Set indeterminate state: some checked but not all
-            if (anyChecked && !allChecked) {
-                selectAllCb.indeterminate = true;
-            }
-            selectAllCb.addEventListener("change", function (e) {
-                var newVal = e.target.checked;
-                for (var i = 0; i < state.visibility.length; i++) {
-                    state.visibility[i] = newVal;
-                }
-                render();
-                renderControlPanel();
-            });
-        }
-
-        // Bind checkbox events
-        var checkboxes = annotationList.querySelectorAll(".ann-checkbox");
-        for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].addEventListener("change", handleCheckboxChange);
-            checkboxes[i].addEventListener("click", function (e) { e.stopPropagation(); });
-        }
-
-        // Bind expand button events
-        var expandBtns = annotationList.querySelectorAll(".ann-expand");
-        for (var i = 0; i < expandBtns.length; i++) {
-            expandBtns[i].addEventListener("click", handleExpandClick);
-        }
-
-        // Bind row click events
-        var rows = annotationList.querySelectorAll(".annotation-row");
-        for (var i = 0; i < rows.length; i++) {
-            rows[i].addEventListener("click", handleRowClick);
+        if (selectAllCb && anyChecked && !allChecked) {
+            selectAllCb.indeterminate = true;
         }
     }
 
@@ -1097,19 +1103,10 @@
 
     // ── Event Handlers ─────────────────────────────────────────────
 
-    function handleLayerToggle(e) {
-        var layer = e.target.getAttribute("data-layer");
-        if (layer && state.layers.hasOwnProperty(layer)) {
-            state.layers[layer] = !state.layers[layer];
-            render();
-            renderControlPanel();
-        }
-    }
-
     var labelClickTimer = null;
 
-    function handleLabelFilterClick(e) {
-        var label = e.currentTarget.getAttribute("data-label");
+    function handleLabelFilterClick(btn) {
+        var label = btn.getAttribute("data-label");
         if (!label || !state.labelVisibility.hasOwnProperty(label)) return;
         if (labelClickTimer) clearTimeout(labelClickTimer);
         labelClickTimer = setTimeout(function () {
@@ -1126,13 +1123,12 @@
         }, 200);
     }
 
-    function handleLabelFilterDblClick(e) {
-        e.preventDefault();
+    function handleLabelFilterDblClick(btn) {
         if (labelClickTimer) {
             clearTimeout(labelClickTimer);
             labelClickTimer = null;
         }
-        var label = e.currentTarget.getAttribute("data-label");
+        var label = btn.getAttribute("data-label");
         if (!label || !state.labelVisibility.hasOwnProperty(label)) return;
 
         // Check if this label is already solo (only this one is ON)
@@ -1273,35 +1269,6 @@
         updateSliderTrack(e.target);
         var label = annotationList.querySelector(".bbox-line-width-value");
         if (label) label.textContent = state.bboxLineWidth;
-    }
-
-    function handleExpandClick(e) {
-        e.stopPropagation();
-        var idx = parseInt(e.currentTarget.getAttribute("data-index"), 10);
-        if (state.expandedIndex === idx) {
-            state.expandedIndex = -1;
-        } else {
-            state.expandedIndex = idx;
-        }
-        renderControlPanel();
-    }
-
-    function handleCheckboxChange(e) {
-        var idx = parseInt(e.target.getAttribute("data-index"), 10);
-        state.visibility[idx] = e.target.checked;
-        render();
-        updateHeaderStats();
-    }
-
-    function handleRowClick(e) {
-        var idx = parseInt(e.currentTarget.getAttribute("data-index"), 10);
-        if (state.selectedIndex === idx) {
-            state.selectedIndex = -1;
-        } else {
-            state.selectedIndex = idx;
-        }
-        render();
-        renderControlPanel();
     }
 
     // Toggle base image
