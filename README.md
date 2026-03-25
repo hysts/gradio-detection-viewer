@@ -151,7 +151,7 @@ cd demo/mask2former && uv run python app.py       # Mask2Former instance segment
 
 ## Testing
 
-The project includes a Playwright-based UI test suite with 60 tests.
+The project includes a Playwright-based UI test suite with 117 tests.
 
 ```bash
 uv run pytest tests/
