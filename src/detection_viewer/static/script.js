@@ -18,7 +18,6 @@
     // ── DOM References ─────────────────────────────────────────────
 
     var container = element.querySelector(".pose-viewer-container");
-    var dataScript = element.querySelector("script.pose-data");
     var canvasWrapper = element.querySelector(".canvas-wrapper");
     var canvas = element.querySelector("canvas");
     var ctx = canvas.getContext("2d");
@@ -98,12 +97,13 @@
         drawOptionsOpen: false
     };
 
-    // ── MutationObserver for value changes ─────────────────────────
+    // ── Watch for Python-initiated value changes ──────────────────
+    // The watch() function (from Gradio's gr.HTML) fires only when
+    // the backend updates props — never on JS-initiated changes.
 
-    var observer = new MutationObserver(function () {
+    watch("value", function () {
         handleValueChange();
     });
-    observer.observe(dataScript, { childList: true, characterData: true, subtree: true });
 
     // Re-assert JS-managed CSS classes after Gradio's DOM morphing
     // wipes them back to template defaults.  The "maximized" class lives
@@ -220,13 +220,15 @@
         }
     });
 
-    // Also handle initial value
-    handleValueChange();
+    // Handle initial value (watch doesn't fire at mount)
+    if (props.value) {
+        handleValueChange();
+    }
 
     // ── Value Change Handler ───────────────────────────────────────
 
     function handleValueChange() {
-        var raw = dataScript.textContent.trim();
+        var raw = typeof props.value === "string" ? props.value.trim() : "";
         if (!raw || raw === "null") {
             showPlaceholder();
             return;
@@ -256,9 +258,6 @@
         }
 
         // Show loading spinner while the image is being fetched.
-        // Gradio's updateDOM() resets JS-managed inline styles and
-        // classes back to template defaults on every value change,
-        // so we must re-establish the display state here.
         showLoading();
         syncUIState();
         pinAncestorOpacity();

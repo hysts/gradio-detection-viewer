@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "detection-viewer"
-version = "0.1.5"
+version = "0.1.6"
 description = "A Gradio custom HTML component for visualizing object detection results — bounding boxes, segmentation masks, human pose keypoints, skeleton connections, and confidence scores"
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "gradio>=6.8.0",
+    "gradio>=6.10.0",
 ]
 
 [tool.hatch.build.targets.wheel]
