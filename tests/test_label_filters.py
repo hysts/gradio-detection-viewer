@@ -55,3 +55,18 @@ def test_reactivate_label_removes_filter(detection_app: Page):
 
     btn.click()
     expect(detection_app.locator(".annotation-row.filtered-out")).to_have_count(0)
+
+
+def test_label_filter_does_not_reset_manual_visibility(detection_app: Page):
+    """Toggling a label filter should preserve manual checkbox visibility state."""
+    checkbox = detection_app.locator(".ann-checkbox").first
+    checkbox.uncheck()
+    expect(checkbox).not_to_be_checked()
+
+    btn = detection_app.locator(".label-filter-btn").first
+    btn.click()
+    expect(detection_app.locator(".annotation-row.filtered-out").first).to_be_visible()
+
+    btn.click()
+    expect(detection_app.locator(".annotation-row.filtered-out")).to_have_count(0)
+    expect(checkbox).not_to_be_checked()

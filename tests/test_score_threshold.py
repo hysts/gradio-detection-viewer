@@ -122,3 +122,30 @@ def test_config_overrides_threshold(browser: Browser):
         label = page.locator(".threshold-value")
         text = label.text_content()
         assert "50%" in text
+
+
+def test_config_override_does_not_leak_to_later_plain_updates(browser: Browser):
+    """A one-off config override should not persist after a later 2-tuple update."""
+    annotations = [
+        {"bbox": {"x": 0, "y": 0, "width": 50, "height": 50}, "score": 0.2, "label": "low"},
+        {"bbox": {"x": 100, "y": 100, "width": 50, "height": 50}, "score": 0.8, "label": "high"},
+    ]
+    initial = (make_grid_image(), annotations)
+    config_value = (make_grid_image(), annotations, {"score_threshold": (0.5, 1.0)})
+    plain_value = (make_grid_image(), annotations)
+
+    with gr.Blocks() as demo:
+        viewer = DetectionViewer(value=initial, label="Viewer")
+        gr.Button("Apply config").click(fn=lambda: config_value, outputs=viewer)
+        gr.Button("Back to plain").click(fn=lambda: plain_value, outputs=viewer)
+    with GradioApp(demo, browser) as page:
+        page.get_by_role("button", name="Apply config").click()
+        expect(page.locator(".annotation-row.below-threshold")).to_have_count(1)
+
+        page.get_by_role("button", name="Back to plain").click()
+
+        label = page.locator(".threshold-value")
+        text = label.text_content()
+        assert "0%" in text
+        assert "100%" in text
+        expect(page.locator(".annotation-row.below-threshold")).to_have_count(0)

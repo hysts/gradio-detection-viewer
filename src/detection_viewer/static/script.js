@@ -96,6 +96,7 @@
         expandedIndex: -1,
         drawOptionsOpen: false
     };
+    var latestValueRequestId = 0;
 
     // ── Watch for Python-initiated value changes ──────────────────
     // The watch() function (from Gradio's gr.HTML) fires only when
@@ -228,6 +229,8 @@
     // ── Value Change Handler ───────────────────────────────────────
 
     function handleValueChange() {
+        latestValueRequestId += 1;
+        var requestId = latestValueRequestId;
         var raw = typeof props.value === "string" ? props.value.trim() : "";
         if (!raw || raw === "null") {
             showPlaceholder();
@@ -249,12 +252,14 @@
 
         // Update score threshold if provided in payload
         if (data.scoreThresholdMin != null) {
-            initialScoreThresholdMin = data.scoreThresholdMin;
             state.thresholdMin = data.scoreThresholdMin;
+        } else {
+            state.thresholdMin = initialScoreThresholdMin;
         }
         if (data.scoreThresholdMax != null) {
-            initialScoreThresholdMax = data.scoreThresholdMax;
             state.thresholdMax = data.scoreThresholdMax;
+        } else {
+            state.thresholdMax = initialScoreThresholdMax;
         }
 
         // Show loading spinner while the image is being fetched.
@@ -264,6 +269,7 @@
 
         var img = new Image();
         img.onload = function () {
+            if (requestId !== latestValueRequestId) return;
             state.image = img;
             state.annotations = data.annotations || [];
             state.visibility = [];
@@ -309,14 +315,24 @@
     // ── Display States: placeholder / loading / content ──────────
 
     function showPlaceholder() {
+        if (state.maximized) {
+            state.maximized = false;
+            element.classList.remove("maximized");
+            pinAncestorOpacity();
+        }
+        document.body.style.overflow = "";
         state.image = null;
         state.annotations = [];
         state.visibility = [];
         state.selectedIndex = -1;
+        state.expandedIndex = -1;
+        state.maskImages = [];
+        state.labelVisibility = {};
         canvasWrapper.classList.remove("visible");
         loadingIndicator.classList.remove("visible");
         controlPanel.classList.remove("visible");
         tooltip.classList.remove("visible");
+        helpOverlay.classList.remove("visible");
         placeholder.classList.remove("hidden");
     }
 
@@ -1110,13 +1126,7 @@
         if (labelClickTimer) clearTimeout(labelClickTimer);
         labelClickTimer = setTimeout(function () {
             labelClickTimer = null;
-            var newVal = !state.labelVisibility[label];
-            state.labelVisibility[label] = newVal;
-            for (var i = 0; i < state.annotations.length; i++) {
-                if (state.annotations[i].label === label) {
-                    state.visibility[i] = newVal;
-                }
-            }
+            state.labelVisibility[label] = !state.labelVisibility[label];
             render();
             renderControlPanel();
         }, 200);
@@ -1141,16 +1151,10 @@
             for (var li = 0; li < labels.length; li++) {
                 state.labelVisibility[labels[li]] = true;
             }
-            for (var i = 0; i < state.annotations.length; i++) {
-                state.visibility[i] = true;
-            }
         } else {
             // Solo: turn only this label ON
             for (var li = 0; li < labels.length; li++) {
                 state.labelVisibility[labels[li]] = (labels[li] === label);
-            }
-            for (var i = 0; i < state.annotations.length; i++) {
-                state.visibility[i] = (state.annotations[i].label === label);
             }
         }
         render();
